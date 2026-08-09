@@ -17,6 +17,7 @@ namespace CricketApp
         public string LastUpdatedTime { get; set; } // New property for the UI
         public int Innings { get; set; }
         public int TargetScore { get; set; }
+        public string TossWinnerName { get; set; }
     }
 
     public partial class Default : System.Web.UI.Page
@@ -35,14 +36,16 @@ namespace CricketApp
             {
                 // 2. Update the SQL query to join the Teams table twice (once for each team)
                 string query = @"
-                SELECT ms.TeamScore, ms.Wickets, ms.Overs, ms.Balls, ms.Innings, ms.TargetScore,ms.LastUpdated,
-                       t1.TeamName AS Team1Name, 
-                       t2.TeamName AS Team2Name
-                FROM MatchState ms
-                INNER JOIN Matches m ON ms.MatchId = m.MatchId
-                INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
-                INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
-                WHERE m.IsLive = 1";
+SELECT ms.TeamScore, ms.Wickets, ms.Overs, ms.Balls, ms.Innings, ms.TargetScore, ms.LastUpdated,
+       t1.TeamName AS Team1Name, 
+       t2.TeamName AS Team2Name,
+       tw.TeamName AS TossWinnerName
+FROM MatchState ms
+INNER JOIN Matches m ON ms.MatchId = m.MatchId
+INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
+INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
+LEFT JOIN Teams tw ON m.TossWinnerId = tw.TeamId
+WHERE m.IsLive = 1";
                 // Read the single row from the database
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
@@ -63,6 +66,7 @@ namespace CricketApp
 
                     // Format the database datetime into a friendly 12-hour clock (e.g., "11:45:30 AM")
                     currentData.LastUpdatedTime = Convert.ToDateTime(reader["LastUpdated"]).ToString("hh:mm:ss tt");
+                    currentData.TossWinnerName = reader["TossWinnerName"].ToString();
                 }
             }
 
@@ -77,6 +81,7 @@ namespace CricketApp
             public string SecondBatName { get; set; }
             public string SecondBatScore { get; set; }
             public string WinnerName { get; set; }
+            public string TossWinnerName { get; set; }
         }
 
         // 2. Updated WebMethod to fetch and calculate the scores
@@ -90,18 +95,20 @@ namespace CricketApp
             {
                 // Join MatchState to get the final score and innings data
                 string query = @"
-        SELECT 
-            t1.TeamName AS Team1Name, 
-            t2.TeamName AS Team2Name, 
-            wt.TeamName AS WinnerName,
-            ms.TeamScore, ms.Wickets, ms.Innings, ms.TargetScore
-        FROM Matches m
-        INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
-        INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
-        INNER JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
-        INNER JOIN MatchState ms ON m.MatchId = ms.MatchId
-        WHERE m.IsLive = 0 AND m.WinnerTeamId IS NOT NULL
-        ORDER BY m.MatchId DESC";
+SELECT 
+    t1.TeamName AS Team1Name, 
+    t2.TeamName AS Team2Name, 
+    wt.TeamName AS WinnerName,
+    tw.TeamName AS TossWinnerName,
+    ms.TeamScore, ms.Wickets, ms.Innings, ms.TargetScore
+FROM Matches m
+INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
+INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
+INNER JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
+LEFT JOIN Teams tw ON m.TossWinnerId = tw.TeamId
+INNER JOIN MatchState ms ON m.MatchId = ms.MatchId
+WHERE m.IsLive = 0 AND m.WinnerTeamId IS NOT NULL
+ORDER BY m.MatchId DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
@@ -118,6 +125,8 @@ namespace CricketApp
 
                     PreviousMatch match = new PreviousMatch();
                     match.WinnerName = reader["WinnerName"].ToString();
+
+                    match.TossWinnerName = reader["TossWinnerName"].ToString();
 
                     if (innings == 2)
                     {

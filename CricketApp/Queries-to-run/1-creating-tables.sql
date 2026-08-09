@@ -10,7 +10,9 @@ CREATE TABLE Matches (
     Team1Id INT FOREIGN KEY REFERENCES Teams(TeamId),
     Team2Id INT FOREIGN KEY REFERENCES Teams(TeamId),
     WinnerTeamId INT NULL, -- Left NULL until the match finishes
-    IsLive BIT DEFAULT 0   -- We set this to 1 for the match currently being played
+    IsLive BIT DEFAULT 0,   -- We set this to 1 for the match currently being played
+    TossWinnerId INT NULL
+
 );
 
 -- 3. The live scoreboard (Notice we added LastUpdated)

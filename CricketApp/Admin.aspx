@@ -57,6 +57,10 @@
                     <asp:DropDownList ID="ddlBowlingTeam" runat="server" DataTextField="TeamName" DataValueField="TeamId"></asp:DropDownList>
                     <br />
                     <br />
+                    <!-- ADDED TOSS WINNER -->
+                    Toss Winner:
+                    <asp:DropDownList ID="ddlTossWinner" runat="server" DataTextField="TeamName" DataValueField="TeamId"></asp:DropDownList>
+                    <br /><br />
                     <asp:Button ID="btnStartMatch" runat="server" Text="Start Match" OnClick="btnStartMatch_Click" BackColor="#2196F3" ForeColor="White" BorderStyle="None" Padding="10" />
                     <asp:Button ID="btnSecondInnings" runat="server" Text="Start 2nd Innings (Swap Teams)" OnClick="btnSecondInnings_Click" BackColor="#FF9800" ForeColor="White" BorderStyle="None" Padding="10" />
 

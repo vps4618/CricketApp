@@ -36,6 +36,9 @@ namespace CricketApp
 
                 ddlWinner.DataSource = dt;
                 ddlWinner.DataBind();
+
+                ddlTossWinner.DataSource = dt;
+                ddlTossWinner.DataBind();
             }
         }
 
@@ -52,12 +55,13 @@ namespace CricketApp
 
                 // 2. Create the new match
                 string insertMatch = @"
-                    INSERT INTO Matches (Team1Id, Team2Id, IsLive) 
-                    OUTPUT INSERTED.MatchId 
-                    VALUES (@Team1, @Team2, 1)";
+    INSERT INTO Matches (Team1Id, Team2Id, TossWinnerId, IsLive) 
+    OUTPUT INSERTED.MatchId 
+    VALUES (@Team1, @Team2, @TossWinner, 1)";
                 SqlCommand cmdNew = new SqlCommand(insertMatch, conn);
                 cmdNew.Parameters.AddWithValue("@Team1", ddlBattingTeam.SelectedValue);
                 cmdNew.Parameters.AddWithValue("@Team2", ddlBowlingTeam.SelectedValue);
+                cmdNew.Parameters.AddWithValue("@TossWinner", ddlTossWinner.SelectedValue);
 
                 // Get the new Match ID
                 int newMatchId = (int)cmdNew.ExecuteScalar();
