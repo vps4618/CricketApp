@@ -143,9 +143,18 @@
 
                 matches.forEach(match => {
                     const listItem = document.createElement("li");
-                    // Using the new CSS classes for clean formatting
+
+                    // Display First Bat, Second Bat, and the Winner clearly
                     listItem.innerHTML = `
-                        <div class="match-title">${match.MatchTitle}</div>
+                        <div class="match-title" style="color: #1976D2; font-size: 16px; margin-bottom: 10px;">
+                            ${match.FirstBatName} vs ${match.SecondBatName}
+                        </div>
+                        <div style="font-size: 14px; color: #424242; margin-bottom: 4px;">
+                            🏏 <b>1st Bat:</b> ${match.FirstBatName} - <span style="color:#d32f2f; font-weight:bold;">${match.FirstBatScore}</span>
+                        </div>
+                        <div style="font-size: 14px; color: #424242; margin-bottom: 10px;">
+                            🏏 <b>2nd Bat:</b> ${match.SecondBatName} - <span style="color:#d32f2f; font-weight:bold;">${match.SecondBatScore}</span>
+                        </div>
                         <div class="match-winner">🏆 Winner: ${match.WinnerName}</div>
                     `;
                     listContainer.appendChild(listItem);

@@ -105,18 +105,38 @@
                     <asp:Button ID="btnUndo" runat="server" Text="⚠️ Undo Latest Action" OnClick="btnUndo_Click" BackColor="#607D8B" ForeColor="White" BorderStyle="None" Padding="15" />
                     <br />
                     <br />
+                    <!-- ADDED QUICK ADJUSTMENTS -->
+                    <h4 style="color: #d32f2f; margin-bottom: 5px;">Quick Adjustments (Limits Enforced)</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <asp:Button ID="btnIncScore" runat="server" Text="+1 Score" OnClick="btnIncScore_Click" BackColor="#4CAF50" ForeColor="White" BorderStyle="None" Padding="8" />
+                        <asp:Button ID="btnDecScore" runat="server" Text="-1 Score" OnClick="btnDecScore_Click" BackColor="#f44336" ForeColor="White" BorderStyle="None" Padding="8" />
 
+                        <asp:Button ID="btnIncBall" runat="server" Text="+1 Ball" OnClick="btnIncBall_Click" BackColor="#4CAF50" ForeColor="White" BorderStyle="None" Padding="8" />
+                        <asp:Button ID="btnDecBall" runat="server" Text="-1 Ball" OnClick="btnDecBall_Click" BackColor="#f44336" ForeColor="White" BorderStyle="None" Padding="8" />
+
+                        <asp:Button ID="btnIncWicket" runat="server" Text="+1 Wicket" OnClick="btnIncWicket_Click" BackColor="#4CAF50" ForeColor="White" BorderStyle="None" Padding="8" />
+                        <asp:Button ID="btnDecWicket" runat="server" Text="-1 Wicket" OnClick="btnDecWicket_Click" BackColor="#f44336" ForeColor="White" BorderStyle="None" Padding="8" />
+                    </div>
+                    <br />
                     <!-- ADDED MANUAL OVERRIDE SECTION -->
                     <h4 style="color: #d32f2f; margin-bottom: 5px;">Manual State Override</h4>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                        <div>Runs:
-                            <asp:TextBox ID="txtManualScore" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
-                        <div>Wickets:
-                            <asp:TextBox ID="txtManualWickets" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
-                        <div>Overs:
-                            <asp:TextBox ID="txtManualOvers" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
-                        <div>Balls:
-                            <asp:TextBox ID="txtManualBalls" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
+                        <div>
+                            Runs:
+                            <asp:TextBox ID="txtManualScore" runat="server" Width="50" TextMode="Number"></asp:TextBox>
+                        </div>
+                        <div>
+                            Wickets:
+                            <asp:TextBox ID="txtManualWickets" runat="server" Width="50" TextMode="Number"></asp:TextBox>
+                        </div>
+                        <div>
+                            Overs:
+                            <asp:TextBox ID="txtManualOvers" runat="server" Width="50" TextMode="Number"></asp:TextBox>
+                        </div>
+                        <div>
+                            Balls:
+                            <asp:TextBox ID="txtManualBalls" runat="server" Width="50" TextMode="Number"></asp:TextBox>
+                        </div>
                     </div>
                     <asp:Button ID="btnManualUpdate" runat="server" Text="⚠️ Force Update State" OnClick="btnManualUpdate_Click" BackColor="#f44336" ForeColor="White" BorderStyle="None" Padding="10" />
 

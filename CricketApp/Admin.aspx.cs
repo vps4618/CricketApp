@@ -511,5 +511,115 @@ namespace CricketApp
                 txtManualBalls.Text = "";
             }
         }
+
+
+        // --- QUICK ADJUSTMENT EVENT HANDLERS ---
+        protected void btnIncScore_Click(object sender, EventArgs e) { AdjustState(1, 0, 0, "+1 Score"); }
+        protected void btnDecScore_Click(object sender, EventArgs e) { AdjustState(-1, 0, 0, "-1 Score"); }
+        protected void btnIncBall_Click(object sender, EventArgs e) { AdjustState(0, 1, 0, "+1 Ball"); }
+        protected void btnDecBall_Click(object sender, EventArgs e) { AdjustState(0, -1, 0, "-1 Ball"); }
+        protected void btnIncWicket_Click(object sender, EventArgs e) { AdjustState(0, 0, 1, "+1 Wicket"); }
+        protected void btnDecWicket_Click(object sender, EventArgs e) { AdjustState(0, 0, -1, "-1 Wicket"); }
+
+        private void AdjustState(int scoreDelta, int ballDelta, int wicketDelta, string actionName)
+        {
+            int matchId = GetLiveMatchId();
+            if (matchId == 0)
+            {
+                lblUndoStatus.Text = "No live match to update!";
+                return;
+            }
+
+            int maxOvers = 5;
+            int maxWickets = 8;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                // 1. Fetch Current State
+                string getScoreQuery = "SELECT TeamScore, Wickets, Overs, Balls, Innings, TargetScore FROM MatchState WHERE MatchId = @MatchId";
+                SqlCommand getCmd = new SqlCommand(getScoreQuery, conn);
+                getCmd.Parameters.AddWithValue("@MatchId", matchId);
+                SqlDataReader reader = getCmd.ExecuteReader();
+
+                int currentScore = 0, currentWickets = 0, currentOvers = 0, currentBalls = 0, currentInnings = 1, targetScore = 0;
+                if (reader.Read())
+                {
+                    currentScore = Convert.ToInt32(reader["TeamScore"]);
+                    currentWickets = Convert.ToInt32(reader["Wickets"]);
+                    currentOvers = Convert.ToInt32(reader["Overs"]);
+                    currentBalls = Convert.ToInt32(reader["Balls"]);
+                    currentInnings = Convert.ToInt32(reader["Innings"]);
+                    targetScore = Convert.ToInt32(reader["TargetScore"]);
+                }
+                reader.Close();
+
+                // 2. Calculate New State Values
+                int newScore = currentScore + scoreDelta;
+                int newWickets = currentWickets + wicketDelta;
+
+                // Convert current overs and balls into total balls, apply delta, then convert back
+                int totalBalls = (currentOvers * 6) + currentBalls + ballDelta;
+
+                // Apply Lower Bounds (Cannot go below 0)
+                if (newScore < 0) newScore = 0;
+                if (newWickets < 0) newWickets = 0;
+                if (totalBalls < 0) totalBalls = 0;
+
+                // Apply Upper Bounds
+                if (newWickets > maxWickets) newWickets = maxWickets;
+
+                int newOvers = totalBalls / 6;
+                int newBalls = totalBalls % 6;
+
+                if (newOvers > maxOvers || (newOvers == maxOvers && newBalls > 0))
+                {
+                    newOvers = maxOvers;
+                    newBalls = 0;
+                }
+
+                // Prevent updating if boundaries stopped the change (e.g. -1 score when score is 0)
+                if (newScore == currentScore && newWickets == currentWickets && newOvers == currentOvers && newBalls == currentBalls)
+                {
+                    lblUndoStatus.Text = "Action ignored: Upper or lower limits reached.";
+                    return;
+                }
+
+                // 3. Backup Current State for Undo
+                string backupQuery = @"
+            INSERT INTO MatchStateHistory (MatchId, TeamScore, Wickets, Overs, Balls, Innings, TargetScore) 
+            VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
+                SqlCommand backupCmd = new SqlCommand(backupQuery, conn);
+                backupCmd.Parameters.AddWithValue("@MatchId", matchId);
+                backupCmd.Parameters.AddWithValue("@Score", currentScore);
+                backupCmd.Parameters.AddWithValue("@Wickets", currentWickets);
+                backupCmd.Parameters.AddWithValue("@Overs", currentOvers);
+                backupCmd.Parameters.AddWithValue("@Balls", currentBalls);
+                backupCmd.Parameters.AddWithValue("@Innings", currentInnings);
+                backupCmd.Parameters.AddWithValue("@Target", targetScore);
+                backupCmd.ExecuteNonQuery();
+
+                // 4. Update Database with New State
+                string updateQuery = @"
+            UPDATE MatchState 
+            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = GETDATE()
+            WHERE MatchId = @MatchId";
+                SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                updateCmd.Parameters.AddWithValue("@NewScore", newScore);
+                updateCmd.Parameters.AddWithValue("@NewWickets", newWickets);
+                updateCmd.Parameters.AddWithValue("@NewOvers", newOvers);
+                updateCmd.Parameters.AddWithValue("@NewBalls", newBalls);
+                updateCmd.Parameters.AddWithValue("@MatchId", matchId);
+                updateCmd.ExecuteNonQuery();
+
+                // 5. Provide Feedback and Log Output
+                lblUndoStatus.Text = $"{actionName} applied successfully.";
+                lblStatus.Text = $"Score adjusted to: {newScore}/{newWickets} in {newOvers}.{newBalls} overs.";
+
+                WriteLog(matchId, $"QUICK ADJUST ({actionName}): State changed to {newScore}/{newWickets} ({newOvers}.{newBalls}).");
+                RefreshLogs(matchId);
+            }
+        }
     }
 }

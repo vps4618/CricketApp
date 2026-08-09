@@ -69,14 +69,17 @@ namespace CricketApp
             return currentData;
         }
 
-        // 1. Create a new class to package the previous match data
+        // 1. Updated class to hold batting details
         public class PreviousMatch
         {
-            public string MatchTitle { get; set; }
+            public string FirstBatName { get; set; }
+            public string FirstBatScore { get; set; }
+            public string SecondBatName { get; set; }
+            public string SecondBatScore { get; set; }
             public string WinnerName { get; set; }
         }
 
-        // 2. Add the new WebMethod to fetch completed matches
+        // 2. Updated WebMethod to fetch and calculate the scores
         [WebMethod]
         public static System.Collections.Generic.List<PreviousMatch> GetPreviousMatches()
         {
@@ -85,30 +88,60 @@ namespace CricketApp
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                // Query joins the Teams table 3 times to get the names for Team 1, Team 2, and the Winner
+                // Join MatchState to get the final score and innings data
                 string query = @"
-                SELECT 
-                    t1.TeamName AS Team1Name, 
-                    t2.TeamName AS Team2Name, 
-                    wt.TeamName AS WinnerName
-                FROM Matches m
-                INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
-                INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
-                INNER JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
-                WHERE m.IsLive = 0 AND m.WinnerTeamId IS NOT NULL
-                ORDER BY m.MatchId DESC"; // Orders by newest completed match first
+        SELECT 
+            t1.TeamName AS Team1Name, 
+            t2.TeamName AS Team2Name, 
+            wt.TeamName AS WinnerName,
+            ms.TeamScore, ms.Wickets, ms.Innings, ms.TargetScore
+        FROM Matches m
+        INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
+        INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
+        INNER JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
+        INNER JOIN MatchState ms ON m.MatchId = ms.MatchId
+        WHERE m.IsLive = 0 AND m.WinnerTeamId IS NOT NULL
+        ORDER BY m.MatchId DESC";
 
-           SqlCommand cmd = new SqlCommand(query, conn);
+                SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    previousMatches.Add(new PreviousMatch
+                    int innings = Convert.ToInt32(reader["Innings"]);
+                    string t1Name = reader["Team1Name"].ToString();
+                    string t2Name = reader["Team2Name"].ToString();
+                    int currentScore = Convert.ToInt32(reader["TeamScore"]);
+                    int currentWickets = Convert.ToInt32(reader["Wickets"]);
+                    int targetScore = Convert.ToInt32(reader["TargetScore"]);
+
+                    PreviousMatch match = new PreviousMatch();
+                    match.WinnerName = reader["WinnerName"].ToString();
+
+                    if (innings == 2)
                     {
-                        MatchTitle = reader["Team1Name"].ToString() + " vs " + reader["Team2Name"].ToString(),
-                        WinnerName = reader["WinnerName"].ToString()
-                    });
+                        // Because teams are swapped at halftime, Team 2 batted first, Team 1 batted second.
+                        match.FirstBatName = t2Name;
+
+                        // The first team's score is the Target Score minus 1. 
+                        // (Note: Exact wickets for the 1st innings aren't preserved in MatchState after the swap)
+                        match.FirstBatScore = (targetScore - 1).ToString() + " runs";
+
+                        match.SecondBatName = t1Name;
+                        match.SecondBatScore = $"{currentScore}/{currentWickets}";
+                    }
+                    else
+                    {
+                        // Match ended during the 1st innings (e.g., rain or forfeit)
+                        match.FirstBatName = t1Name;
+                        match.FirstBatScore = $"{currentScore}/{currentWickets}";
+
+                        match.SecondBatName = t2Name;
+                        match.SecondBatScore = "Did not bat";
+                    }
+
+                    previousMatches.Add(match);
                 }
             }
             return previousMatches;
