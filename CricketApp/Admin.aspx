@@ -99,10 +99,27 @@
                 <br />
                 <asp:Label ID="lblStatus" runat="server" Font-Bold="True" ForeColor="Blue"></asp:Label>
 
-                <!-- DANGER ZONE (UNDO) -->
+                <!-- DANGER ZONE (UNDO & MANUAL OVERRIDE) -->
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ccc;">
                     <h3 style="margin-top: 0; color: #d32f2f;">Danger Zone</h3>
                     <asp:Button ID="btnUndo" runat="server" Text="⚠️ Undo Latest Action" OnClick="btnUndo_Click" BackColor="#607D8B" ForeColor="White" BorderStyle="None" Padding="15" />
+                    <br />
+                    <br />
+
+                    <!-- ADDED MANUAL OVERRIDE SECTION -->
+                    <h4 style="color: #d32f2f; margin-bottom: 5px;">Manual State Override</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <div>Runs:
+                            <asp:TextBox ID="txtManualScore" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
+                        <div>Wickets:
+                            <asp:TextBox ID="txtManualWickets" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
+                        <div>Overs:
+                            <asp:TextBox ID="txtManualOvers" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
+                        <div>Balls:
+                            <asp:TextBox ID="txtManualBalls" runat="server" Width="50" TextMode="Number"></asp:TextBox></div>
+                    </div>
+                    <asp:Button ID="btnManualUpdate" runat="server" Text="⚠️ Force Update State" OnClick="btnManualUpdate_Click" BackColor="#f44336" ForeColor="White" BorderStyle="None" Padding="10" />
+
                     <br />
                     <br />
                     <asp:Label ID="lblUndoStatus" runat="server" Font-Bold="True" ForeColor="#d32f2f"></asp:Label>

@@ -195,6 +195,51 @@ namespace CricketApp
         protected global::System.Web.UI.WebControls.Button btnUndo;
 
         /// <summary>
+        /// txtManualScore control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtManualScore;
+
+        /// <summary>
+        /// txtManualWickets control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtManualWickets;
+
+        /// <summary>
+        /// txtManualOvers control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtManualOvers;
+
+        /// <summary>
+        /// txtManualBalls control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtManualBalls;
+
+        /// <summary>
+        /// btnManualUpdate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnManualUpdate;
+
+        /// <summary>
         /// lblUndoStatus control.
         /// </summary>
         /// <remarks>

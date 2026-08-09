@@ -427,5 +427,89 @@ namespace CricketApp
                 }
             }
         }
+
+        protected void btnManualUpdate_Click(object sender, EventArgs e)
+        {
+            int matchId = GetLiveMatchId();
+            if (matchId == 0)
+            {
+                lblUndoStatus.Text = "No live match to update!";
+                return;
+            }
+
+            // 1. Validate Inputs
+            int newScore, newWickets, newOvers, newBalls;
+            if (!int.TryParse(txtManualScore.Text, out newScore) ||
+                !int.TryParse(txtManualWickets.Text, out newWickets) ||
+                !int.TryParse(txtManualOvers.Text, out newOvers) ||
+                !int.TryParse(txtManualBalls.Text, out newBalls))
+            {
+                lblUndoStatus.Text = "Invalid input! Please enter valid numbers in all fields.";
+                return;
+            }
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                conn.Open();
+
+                // 2. Get Current State for Backup
+                string getScoreQuery = "SELECT TeamScore, Wickets, Overs, Balls, Innings, TargetScore FROM MatchState WHERE MatchId = @MatchId";
+                SqlCommand getCmd = new SqlCommand(getScoreQuery, conn);
+                getCmd.Parameters.AddWithValue("@MatchId", matchId);
+                SqlDataReader reader = getCmd.ExecuteReader();
+
+                int currentScore = 0, currentWickets = 0, currentOvers = 0, currentBalls = 0, currentInnings = 1, targetScore = 0;
+                if (reader.Read())
+                {
+                    currentScore = Convert.ToInt32(reader["TeamScore"]);
+                    currentWickets = Convert.ToInt32(reader["Wickets"]);
+                    currentOvers = Convert.ToInt32(reader["Overs"]);
+                    currentBalls = Convert.ToInt32(reader["Balls"]);
+                    currentInnings = Convert.ToInt32(reader["Innings"]);
+                    targetScore = Convert.ToInt32(reader["TargetScore"]);
+                }
+                reader.Close();
+
+                // 3. Backup to MatchStateHistory (Allows Undo to work properly)
+                string backupQuery = @"
+            INSERT INTO MatchStateHistory (MatchId, TeamScore, Wickets, Overs, Balls, Innings, TargetScore) 
+            VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
+                SqlCommand backupCmd = new SqlCommand(backupQuery, conn);
+                backupCmd.Parameters.AddWithValue("@MatchId", matchId);
+                backupCmd.Parameters.AddWithValue("@Score", currentScore);
+                backupCmd.Parameters.AddWithValue("@Wickets", currentWickets);
+                backupCmd.Parameters.AddWithValue("@Overs", currentOvers);
+                backupCmd.Parameters.AddWithValue("@Balls", currentBalls);
+                backupCmd.Parameters.AddWithValue("@Innings", currentInnings);
+                backupCmd.Parameters.AddWithValue("@Target", targetScore);
+                backupCmd.ExecuteNonQuery();
+
+                // 4. Update MatchState with the Manual Values
+                string updateQuery = @"
+            UPDATE MatchState 
+            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = GETDATE()
+            WHERE MatchId = @MatchId";
+                SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                updateCmd.Parameters.AddWithValue("@NewScore", newScore);
+                updateCmd.Parameters.AddWithValue("@NewWickets", newWickets);
+                updateCmd.Parameters.AddWithValue("@NewOvers", newOvers);
+                updateCmd.Parameters.AddWithValue("@NewBalls", newBalls);
+                updateCmd.Parameters.AddWithValue("@MatchId", matchId);
+                updateCmd.ExecuteNonQuery();
+
+                // 5. Update UI & Audit Logs
+                lblUndoStatus.Text = "Manual override applied successfully!";
+                lblStatus.Text = $"Score manually set to: {newScore}/{newWickets} in {newOvers}.{newBalls} overs.";
+
+                WriteLog(matchId, $"MANUAL OVERRIDE: Score changed from {currentScore}/{currentWickets} ({currentOvers}.{currentBalls}) to {newScore}/{newWickets} ({newOvers}.{newBalls}).");
+                RefreshLogs(matchId);
+
+                // Clear input boxes after submission
+                txtManualScore.Text = "";
+                txtManualWickets.Text = "";
+                txtManualOvers.Text = "";
+                txtManualBalls.Text = "";
+            }
+        }
     }
 }
