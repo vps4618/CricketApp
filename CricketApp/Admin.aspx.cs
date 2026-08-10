@@ -11,11 +11,44 @@ namespace CricketApp
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            // 1. Check if the admin session exists and is valid
+            if (Session["IsAdmin"] != null && (bool)Session["IsAdmin"] == true)
             {
-                LoadTeams();
-                int liveMatchId = GetLiveMatchId();
-                RefreshLogs(liveMatchId);
+                // Show the dashboard, hide the login
+                pnlLogin.Visible = false;
+                pnlAdminDashboard.Visible = true;
+
+                if (!IsPostBack)
+                {
+                    LoadTeams();
+                    int liveMatchId = GetLiveMatchId();
+                    RefreshLogs(liveMatchId);
+                }
+            }
+            else
+            {
+                // Hide the dashboard, show the login
+                pnlLogin.Visible = true;
+                pnlAdminDashboard.Visible = false;
+            }
+        }
+
+        // --- NEW: Login Button Click Event ---
+        protected void btnLogin_Click(object sender, EventArgs e)
+        {
+            // Retrieve the password stored in Web.config
+            string expectedPassword = ConfigurationManager.AppSettings["AdminPassword"];
+
+            if (txtPassword.Text == expectedPassword)
+            {
+                // Password is correct, set the session and reload the page
+                Session["IsAdmin"] = true;
+                Response.Redirect("Admin.aspx");
+            }
+            else
+            {
+                // Password is wrong
+                lblLoginError.Text = "Incorrect password. Please try again.";
             }
         }
 
