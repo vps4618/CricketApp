@@ -123,6 +123,7 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
+    <Content Include="ManageTeams.aspx" />
     <Content Include="Queries-to-run\1-creating-tables.sql" />
     <Content Include="Queries-to-run\2-inserting-matches.sql" />
     <Content Include="Scripts\bootstrap.js" />
@@ -172,6 +173,13 @@
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="ManageTeams.aspx.cs">
+      <DependentUpon>ManageTeams.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ManageTeams.aspx.designer.cs">
+      <DependentUpon>ManageTeams.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -62,6 +62,7 @@
                 <!-- ========================================== -->
                 <div style="flex: 2; min-width: 400px;">
                     <h2>Admin Dashboard - Update Score</h2>
+                    <a href="manageteams" style="display: inline-block; margin-bottom: 15px; color: #1976D2; text-decoration: none; font-weight: bold;">⚙️ Manage Tournament Teams</a>
 
                     <!-- TOURNAMENT MANAGEMENT SECTION -->
                     <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #90caf9;">

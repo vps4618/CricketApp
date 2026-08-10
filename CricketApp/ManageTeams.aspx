@@ -1,0 +1,87 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ManageTeams.aspx.cs" Inherits="CricketApp.ManageTeams" %>
+
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>Manage Teams</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+        }
+        .btn-add { background-color: #4CAF50; font-size: 14px; }
+        .btn-back { 
+            background-color: #2196F3; 
+            text-decoration: none; 
+            display: inline-block; 
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th { background-color: #f2f2f2; }
+        .action-links a { margin-right: 10px; text-decoration: none; color: #1976D2; }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="container">
+            <!-- Navigation back to main admin dashboard -->
+            <a href="admin" class="btn btn-back">← Back to Score Dashboard</a>
+            
+            <h2 style="margin-top: 0;">Manage Tournament Teams</h2>
+
+            <!-- ADD NEW TEAM SECTION -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 5px; border: 1px solid #90caf9;">
+                <h3 style="margin-top: 0;">Add New Team</h3>
+                <asp:TextBox ID="txtNewTeam" runat="server" placeholder="Enter Team Name" Width="250px" Height="25px" style="padding: 5px;"></asp:TextBox>
+                <asp:Button ID="btnAddTeam" runat="server" Text="Add Team" CssClass="btn btn-add" OnClick="btnAddTeam_Click" />
+                <br /><br />
+                <asp:Label ID="lblMessage" runat="server" Font-Bold="true"></asp:Label>
+            </div>
+
+            <!-- VIEW, UPDATE, DELETE TEAMS GRIDVIEW -->
+            <asp:GridView ID="gvTeams" runat="server" AutoGenerateColumns="False" DataKeyNames="TeamId"
+                OnRowEditing="gvTeams_RowEditing" OnRowCancelingEdit="gvTeams_RowCancelingEdit"
+                OnRowUpdating="gvTeams_RowUpdating" OnRowDeleting="gvTeams_RowDeleting"
+                GridLines="None" CssClass="grid-view">
+                <Columns>
+                    <asp:BoundField DataField="TeamId" HeaderText="ID" ReadOnly="True" ItemStyle-Width="50px" />
+                    <asp:TemplateField HeaderText="Team Name">
+                        <ItemTemplate>
+                            <asp:Label ID="lblTeamName" runat="server" Text='<%# Eval("TeamName") %>'></asp:Label>
+                        </ItemTemplate>
+                        <EditItemTemplate>
+                            <asp:TextBox ID="txtEditTeamName" runat="server" Text='<%# Bind("TeamName") %>' Width="90%"></asp:TextBox>
+                        </EditItemTemplate>
+                    </asp:TemplateField>
+                    <asp:CommandField ShowEditButton="True" ShowDeleteButton="True" HeaderText="Actions" ItemStyle-Width="150px" ItemStyle-CssClass="action-links" />
+                </Columns>
+            </asp:GridView>
+        </div>
+    </form>
+</body>
+</html>

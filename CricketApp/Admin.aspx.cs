@@ -43,7 +43,7 @@ namespace CricketApp
             {
                 // Password is correct, set the session and reload the page
                 Session["IsAdmin"] = true;
-                Response.Redirect("Admin.aspx");
+                Response.Redirect("admin");
             }
             else
             {
