@@ -98,16 +98,16 @@ WHERE m.IsLive = 1";
 SELECT 
     t1.TeamName AS Team1Name, 
     t2.TeamName AS Team2Name, 
-    wt.TeamName AS WinnerName,
+    ISNULL(wt.TeamName, 'Tie') AS WinnerName,
     tw.TeamName AS TossWinnerName,
     ms.TeamScore, ms.Wickets, ms.Innings, ms.TargetScore
 FROM Matches m
 INNER JOIN Teams t1 ON m.Team1Id = t1.TeamId
 INNER JOIN Teams t2 ON m.Team2Id = t2.TeamId
-INNER JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
+LEFT JOIN Teams wt ON m.WinnerTeamId = wt.TeamId
 LEFT JOIN Teams tw ON m.TossWinnerId = tw.TeamId
 INNER JOIN MatchState ms ON m.MatchId = ms.MatchId
-WHERE m.IsLive = 0 AND m.WinnerTeamId IS NOT NULL
+WHERE m.IsLive = 0 AND (m.WinnerTeamId IS NOT NULL OR (ms.Innings = 2 AND ms.TeamScore = ms.TargetScore - 1))
 ORDER BY m.MatchId DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);

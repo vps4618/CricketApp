@@ -50,7 +50,7 @@
 
                 <!-- TOURNAMENT MANAGEMENT SECTION -->
                 <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #90caf9;">
-                    <h3 style="margin-top: 0;">1. Start a New Match</h3>
+                    <h3 style="margin-top: 0;">Start a New Match</h3>
                     Batting Team: 
                     <asp:DropDownList ID="ddlBattingTeam" runat="server" DataTextField="TeamName" DataValueField="TeamId"></asp:DropDownList>
                     &nbsp; vs &nbsp; Bowling Team: 
@@ -63,13 +63,13 @@
                     <br /><br />
                     <asp:Button ID="btnStartMatch" runat="server" Text="Start Match" OnClick="btnStartMatch_Click" BackColor="#2196F3" ForeColor="White" BorderStyle="None" Padding="10" />
                     <asp:Button ID="btnSecondInnings" runat="server" Text="Start 2nd Innings (Swap Teams)" OnClick="btnSecondInnings_Click" BackColor="#FF9800" ForeColor="White" BorderStyle="None" Padding="10" />
-
+                    <!--
                     <hr style="border: 1px solid #bbdefb; margin: 15px 0;" />
 
                     <h3 style="margin-top: 0;">2. End Current Match</h3>
                     Select Winner: 
                     <asp:DropDownList ID="ddlWinner" runat="server" DataTextField="TeamName" DataValueField="TeamId"></asp:DropDownList>
-                    <asp:Button ID="btnEndMatch" runat="server" Text="Save Winner & End Match" OnClick="btnEndMatch_Click" BackColor="#9C27B0" ForeColor="White" BorderStyle="None" Padding="10" />
+                    <asp:Button ID="btnEndMatch" runat="server" Text="Save Winner & End Match" OnClick="btnEndMatch_Click" BackColor="#9C27B0" ForeColor="White" BorderStyle="None" Padding="10" />-->
                     <br />
                     <br />
                     <asp:Label ID="lblMatchMessage" runat="server" Font-Bold="True" ForeColor="#d32f2f"></asp:Label>

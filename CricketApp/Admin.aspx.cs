@@ -130,17 +130,19 @@ namespace CricketApp
             {
                 conn.Open();
 
-                // 1. Get Current Score State
+                // 1. Get Current Score State & Team IDs
                 string getScoreQuery = @"
-            SELECT ms.TeamScore, ms.Wickets, ms.Overs, ms.Balls, ms.Innings, ms.TargetScore 
-            FROM MatchState ms
-            INNER JOIN Matches m ON ms.MatchId = m.MatchId
-            WHERE m.IsLive = 1";
+    SELECT ms.TeamScore, ms.Wickets, ms.Overs, ms.Balls, ms.Innings, ms.TargetScore,
+           m.Team1Id, m.Team2Id
+    FROM MatchState ms
+    INNER JOIN Matches m ON ms.MatchId = m.MatchId
+    WHERE m.IsLive = 1";
 
                 SqlCommand getCmd = new SqlCommand(getScoreQuery, conn);
                 SqlDataReader reader = getCmd.ExecuteReader();
 
                 int currentScore = 0, currentWickets = 0, currentOvers = 0, currentBalls = 0, currentInnings = 1, targetScore = 0;
+                int battingTeamId = 0, bowlingTeamId = 0;
 
                 if (reader.Read())
                 {
@@ -150,6 +152,10 @@ namespace CricketApp
                     currentBalls = Convert.ToInt32(reader["Balls"]);
                     currentInnings = Convert.ToInt32(reader["Innings"]);
                     targetScore = Convert.ToInt32(reader["TargetScore"]);
+
+                    // Because teams are swapped at the 2nd innings, Team1Id is always the current batting team
+                    battingTeamId = Convert.ToInt32(reader["Team1Id"]);
+                    bowlingTeamId = Convert.ToInt32(reader["Team2Id"]);
                 }
                 else
                 {
@@ -158,11 +164,11 @@ namespace CricketApp
                 }
                 reader.Close();
 
-                // --- INSERT THIS BACKUP LOGIC RIGHT AFTER reader.Close(); ---
+                // --- BACKUP LOGIC ---
                 int matchId = GetLiveMatchId();
                 string backupQuery = @"
-    INSERT INTO MatchStateHistory (MatchId, TeamScore, Wickets, Overs, Balls, Innings, TargetScore) 
-    VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
+INSERT INTO MatchStateHistory (MatchId, TeamScore, Wickets, Overs, Balls, Innings, TargetScore) 
+VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
 
                 SqlCommand backupCmd = new SqlCommand(backupQuery, conn);
                 backupCmd.Parameters.AddWithValue("@MatchId", matchId);
@@ -173,9 +179,8 @@ namespace CricketApp
                 backupCmd.Parameters.AddWithValue("@Innings", currentInnings);
                 backupCmd.Parameters.AddWithValue("@Target", targetScore);
                 backupCmd.ExecuteNonQuery();
-                // --- END BACKUP LOGIC ---
 
-                // --- ENFORCE LIMITS: Block updates if innings/match is already over ---
+                // --- ENFORCE LIMITS ---
                 if (currentWickets >= maxWickets || currentOvers >= maxOvers || (currentInnings == 2 && currentScore >= targetScore))
                 {
                     lblStatus.Text = "Cannot add runs. The innings/match is already over!";
@@ -198,9 +203,9 @@ namespace CricketApp
 
                 // 3. Save to Database
                 string updateQuery = @"
-            UPDATE ms 
-            SET ms.TeamScore = @Score, ms.Wickets = @Wickets, ms.Overs = @Overs, ms.Balls = @Balls, ms.LastUpdated = GETDATE()
-            FROM MatchState ms INNER JOIN Matches m ON ms.MatchId = m.MatchId WHERE m.IsLive = 1";
+    UPDATE ms 
+    SET ms.TeamScore = @Score, ms.Wickets = @Wickets, ms.Overs = @Overs, ms.Balls = @Balls, ms.LastUpdated = GETDATE()
+    FROM MatchState ms INNER JOIN Matches m ON ms.MatchId = m.MatchId WHERE m.IsLive = 1";
 
                 SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
                 updateCmd.Parameters.AddWithValue("@Score", currentScore);
@@ -209,8 +214,11 @@ namespace CricketApp
                 updateCmd.Parameters.AddWithValue("@Balls", currentBalls);
                 updateCmd.ExecuteNonQuery();
 
-                // 4. Generate the Status & Winner Message for the Admin Dashboard
+                // 4. Generate the Status, Winner Message & Check Auto-End Condition
                 string statusMsg = $"Successfully updated! Score: {currentScore}/{currentWickets} in {currentOvers}.{currentBalls} overs.";
+
+                bool isMatchOver = false;
+                object finalWinnerId = DBNull.Value;
 
                 if (currentInnings == 1)
                 {
@@ -220,16 +228,30 @@ namespace CricketApp
                 else if (currentInnings == 2)
                 {
                     if (currentScore >= targetScore)
+                    {
                         statusMsg = $"MATCH OVER! The batting team wins by successfully chasing the target of {targetScore}!";
+                        isMatchOver = true;
+                        finalWinnerId = battingTeamId; // Batting team successfully chased
+                    }
                     else if (currentOvers >= maxOvers || currentWickets >= maxWickets)
                     {
                         if (currentScore == targetScore - 1)
+                        {
                             statusMsg = $"MATCH OVER! It's a TIE!";
+                            isMatchOver = true;
+                            finalWinnerId = DBNull.Value; // Tied match leaves Winner ID as NULL
+                        }
                         else
+                        {
                             statusMsg = $"MATCH OVER! The bowling team wins by defending their target!";
+                            isMatchOver = true;
+                            finalWinnerId = bowlingTeamId; // Bowling team successfully defended
+                        }
                     }
                     else
+                    {
                         statusMsg += $" (Target: {targetScore})";
+                    }
                 }
 
                 lblStatus.Text = statusMsg;
@@ -240,6 +262,18 @@ namespace CricketApp
                 else if (!isLegalBall) actionType = "Extra (Wide/No Ball)";
 
                 WriteLog(matchId, $"Action: {actionType} added. Board is now {currentScore}/{currentWickets} in {currentOvers}.{currentBalls} overs.");
+
+                // 5. AUTOMATICALLY END THE MATCH
+                if (isMatchOver)
+                {
+                    string endMatchQuery = "UPDATE Matches SET IsLive = 0, WinnerTeamId = @WinnerId WHERE MatchId = @MatchId";
+                    SqlCommand endCmd = new SqlCommand(endMatchQuery, conn);
+                    endCmd.Parameters.AddWithValue("@WinnerId", finalWinnerId);
+                    endCmd.Parameters.AddWithValue("@MatchId", matchId);
+                    endCmd.ExecuteNonQuery();
+
+                    WriteLog(matchId, "SYSTEM: Match automatically ended and result recorded.");
+                }
 
                 RefreshLogs(matchId);
             }
