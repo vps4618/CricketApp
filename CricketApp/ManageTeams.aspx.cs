@@ -16,7 +16,7 @@ namespace CricketApp
             if (Session["IsAdmin"] == null || (bool)Session["IsAdmin"] == false)
             {
                 // If not authenticated, kick them back to the Admin login screen
-                Response.Redirect("Admin.aspx");
+                Response.Redirect("admin");
             }
 
             if (!IsPostBack)
