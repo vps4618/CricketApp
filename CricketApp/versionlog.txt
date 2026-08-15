@@ -1,0 +1,6 @@
+﻿2026/08/10
+--------------
+# created to satisfying level.
+# All table management added.
+# Reset table functionality added.
+# routings added.
