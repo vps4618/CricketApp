@@ -77,7 +77,7 @@ namespace CricketApp
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 string query = @"INSERT INTO MatchState (MatchId, BattingTeamId, TeamScore, Wickets, Overs, Balls, LastUpdated, Innings, TargetScore) 
-                                 VALUES (@MatchId, @BattingTeamId, @TeamScore, @Wickets, @Overs, @Balls, GETDATE(), @Innings, @TargetScore)";
+                                 VALUES (@MatchId, @BattingTeamId, @TeamScore, @Wickets, @Overs, @Balls, DATEADD(minute, 330, GETUTCDATE()), @Innings, @TargetScore)";
                 SqlCommand cmd = new SqlCommand(query, conn);
 
                 cmd.Parameters.AddWithValue("@MatchId", ddlMatchId.SelectedValue);
@@ -149,7 +149,7 @@ namespace CricketApp
                 string query = @"UPDATE MatchState 
                                  SET BattingTeamId = @BattingTeamId, TeamScore = @TeamScore, 
                                      Wickets = @Wickets, Overs = @Overs, Balls = @Balls, 
-                                     Innings = @Innings, TargetScore = @TargetScore, LastUpdated = GETDATE()
+                                     Innings = @Innings, TargetScore = @TargetScore, LastUpdated = DATEADD(minute, 330, GETUTCDATE())
                                  WHERE MatchId = @MatchId";
                 SqlCommand cmd = new SqlCommand(query, conn);
 

@@ -102,7 +102,7 @@ namespace CricketApp
                 // 3. Create the starting score board (0 runs, 0 wickets)
                 string insertState = @"
     INSERT INTO MatchState (MatchId, BattingTeamId, TeamScore, Wickets, Overs, Balls, LastUpdated, Innings, TargetScore) 
-    VALUES (@MatchId, @BattingId, 0, 0, 0, 0, GETDATE(), 1, 0)";
+    VALUES (@MatchId, @BattingId, 0, 0, 0, 0, DATEADD(minute, 330, GETUTCDATE()), 1, 0)";
                 SqlCommand cmdState = new SqlCommand(insertState, conn);
                 cmdState.Parameters.AddWithValue("@MatchId", newMatchId);
                 cmdState.Parameters.AddWithValue("@BattingId", ddlBattingTeam.SelectedValue);
@@ -237,7 +237,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
                 // 3. Save to Database
                 string updateQuery = @"
     UPDATE ms 
-    SET ms.TeamScore = @Score, ms.Wickets = @Wickets, ms.Overs = @Overs, ms.Balls = @Balls, ms.LastUpdated = GETDATE()
+    SET ms.TeamScore = @Score, ms.Wickets = @Wickets, ms.Overs = @Overs, ms.Balls = @Balls, ms.LastUpdated = DATEADD(minute, 330, GETUTCDATE())
     FROM MatchState ms INNER JOIN Matches m ON ms.MatchId = m.MatchId WHERE m.IsLive = 1";
 
                 SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
@@ -349,7 +349,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
 
             UPDATE MatchState 
             SET TeamScore = 0, Wickets = 0, Overs = 0, Balls = 0, 
-                Innings = 2, TargetScore = @Target, LastUpdated = GETDATE(),
+                Innings = 2, TargetScore = @Target, LastUpdated = DATEADD(minute, 330, GETUTCDATE()),
                 BattingTeamId = @NewBattingId
             WHERE MatchId = @MatchId", conn);
 
@@ -383,7 +383,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                string query = "INSERT INTO MatchLogs (MatchId, LogMessage, LogTime) VALUES (@MatchId, @Msg, GETDATE())";
+                string query = "INSERT INTO MatchLogs (MatchId, LogMessage, LogTime) VALUES (@MatchId, @Msg, DATEADD(minute, 330, GETUTCDATE()))";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@MatchId", matchId);
                 cmd.Parameters.AddWithValue("@Msg", message);
@@ -466,7 +466,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
                 UPDATE MatchState 
                 SET TeamScore = @Score, Wickets = @Wickets, Overs = @Overs, 
                     Balls = @Balls, Innings = @Innings, TargetScore = @Target, 
-                    LastUpdated = GETDATE() 
+                    LastUpdated = DATEADD(minute, 330, GETUTCDATE()) 
                 WHERE MatchId = @MatchId";
 
                     SqlCommand restoreCmd = new SqlCommand(restoreQuery, conn);
@@ -558,7 +558,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
                 // 4. Update MatchState with the Manual Values
                 string updateQuery = @"
             UPDATE MatchState 
-            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = GETDATE()
+            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = DATEADD(minute, 330, GETUTCDATE())
             WHERE MatchId = @MatchId";
                 SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
                 updateCmd.Parameters.AddWithValue("@NewScore", newScore);
@@ -674,7 +674,7 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
                 // 4. Update Database with New State
                 string updateQuery = @"
             UPDATE MatchState 
-            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = GETDATE()
+            SET TeamScore = @NewScore, Wickets = @NewWickets, Overs = @NewOvers, Balls = @NewBalls, LastUpdated = DATEADD(minute, 330, GETUTCDATE())
             WHERE MatchId = @MatchId";
                 SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
                 updateCmd.Parameters.AddWithValue("@NewScore", newScore);

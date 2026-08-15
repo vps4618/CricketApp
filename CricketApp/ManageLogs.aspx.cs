@@ -76,9 +76,9 @@ namespace CricketApp
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
-                // Note: LogTime defaults to GETDATE() based on your schema
+                // Note: LogTime defaults to DATEADD(minute, 330, GETUTCDATE()) based on your schema
                 string query = @"INSERT INTO MatchLogs (MatchId, LogMessage, LogTime) 
-                                 VALUES (@MatchId, @LogMessage, GETDATE())";
+                                 VALUES (@MatchId, @LogMessage, DATEADD(minute, 330, GETUTCDATE()))";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@MatchId", ddlMatchId.SelectedValue);
                 cmd.Parameters.AddWithValue("@LogMessage", txtLogMessage.Text.Trim());
