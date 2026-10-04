@@ -1,4 +1,5 @@
 ﻿2026/10/04
 -------------
-# reorder with descending time in dashboard - todo
+# reorder with descending time in dashboard
 # question which assigned but pending , can be taken by other user
+# in main dashboard , member views will be always horizontal

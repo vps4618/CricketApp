@@ -79,7 +79,7 @@ namespace CricketApp.CompeteTracker
                     if (questionExists && isAvailableToClaim)
                     {
                         // Claim it via UPDATE, overwriting the previous assignee
-                        string updateQuery = "UPDATE Questions SET AssignedMemberId = @MemberId, Status = 'Ongoing' WHERE QuestionTitle = @Title";
+                        string updateQuery = "UPDATE Questions SET AssignedMemberId = @MemberId, Status = 'Ongoing', ModifiedDate = GETUTCDATE() WHERE QuestionTitle = @Title";
                         using (SqlCommand updateCmd = new SqlCommand(updateQuery, con))
                         {
                             updateCmd.Parameters.AddWithValue("@Title", questionTitle);
@@ -91,7 +91,7 @@ namespace CricketApp.CompeteTracker
                     else if (!questionExists)
                     {
                         // 2. The question does not exist at all. Proceed with INSERT.
-                        string insertQuery = "INSERT INTO Questions (QuestionTitle, Status, AssignedMemberId) VALUES (@Title, 'Ongoing', @MemberId)";
+                        string insertQuery = "INSERT INTO Questions (QuestionTitle, Status, AssignedMemberId, CreatedDate, ModifiedDate) VALUES (@Title, 'Ongoing', @MemberId, GETUTCDATE(), GETUTCDATE())";
                         using (SqlCommand insertCmd = new SqlCommand(insertQuery, con))
                         {
                             insertCmd.Parameters.AddWithValue("@Title", questionTitle);

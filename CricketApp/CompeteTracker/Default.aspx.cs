@@ -52,7 +52,7 @@ namespace CricketApp.CompeteTracker
                 // Load questions for this member
                 using (SqlConnection con = new SqlConnection(connString))
                 {
-                    SqlCommand cmd = new SqlCommand("SELECT QuestionTitle, Status FROM Questions WHERE AssignedMemberId = @MemberId", con);
+                    SqlCommand cmd = new SqlCommand("SELECT QuestionTitle, Status FROM Questions WHERE AssignedMemberId = @MemberId ORDER BY ISNULL(ModifiedDate, CreatedDate) DESC", con);
                     cmd.Parameters.AddWithValue("@MemberId", memberId);
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dtQuestions = new DataTable();

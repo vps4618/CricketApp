@@ -60,8 +60,9 @@
     <!-- SqlDataSource filtered by Session["MemberId"] -->
     <asp:SqlDataSource ID="SqlDataSourceMyQuestions" runat="server" 
         ConnectionString="<%$ ConnectionStrings:CricketDb %>" 
-        SelectCommand="SELECT QuestionId, QuestionTitle, Status FROM [Questions] WHERE AssignedMemberId = @MemberId" 
-        UpdateCommand="UPDATE [Questions] SET [Status] = @Status WHERE [QuestionId] = @QuestionId">
+        SelectCommand="SELECT QuestionId, QuestionTitle, Status FROM [Questions] WHERE AssignedMemberId = @MemberId"
+        UpdateCommand="UPDATE [Questions] SET [Status] = @Status, [ModifiedDate] = GETUTCDATE() WHERE [QuestionId] = @QuestionId">
+
         <SelectParameters>
             <asp:SessionParameter Name="MemberId" SessionField="MemberId" Type="Int32" />
         </SelectParameters>

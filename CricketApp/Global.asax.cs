@@ -146,7 +146,9 @@ namespace CricketApp
                          QuestionId INT IDENTITY(1,1) PRIMARY KEY,
                          QuestionTitle NVARCHAR(255) NOT NULL,
                         Status NVARCHAR(50) DEFAULT 'Pending', -- Values: Pending, Ongoing, Finished
-                        AssignedMemberId INT NULL FOREIGN KEY REFERENCES Members(MemberId)
+                        AssignedMemberId INT NULL FOREIGN KEY REFERENCES Members(MemberId),
+                        CreatedDate DATETIME DEFAULT GETUTCDATE(),
+                        ModifiedDate DATETIME NULL;
                     );
                 END
                 

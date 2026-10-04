@@ -43,7 +43,8 @@ namespace CricketApp.CompeteTracker
             {
                 using (SqlConnection con = new SqlConnection(connString))
                 {
-                    string query = "INSERT INTO Questions (QuestionTitle, Status) VALUES (@Title, 'Pending')";
+                    string query = "INSERT INTO Questions(QuestionTitle, Status, CreatedDate, ModifiedDate) VALUES(@Title, 'Pending', GETUTCDATE(), GETUTCDATE())";
+                    
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("@Title", txtNewQuestion.Text.Trim());

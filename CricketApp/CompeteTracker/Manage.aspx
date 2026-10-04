@@ -83,7 +83,7 @@
     <asp:SqlDataSource ID="SqlDataSourceQuestions" runat="server" 
         ConnectionString="<%$ ConnectionStrings:CricketDb %>" 
         SelectCommand="SELECT q.QuestionId, q.QuestionTitle, q.Status, q.AssignedMemberId, m.Name as AssigneeName FROM [Questions] q LEFT JOIN [Members] m ON q.AssignedMemberId = m.MemberId" 
-        UpdateCommand="UPDATE [Questions] SET [QuestionTitle] = @QuestionTitle, [Status] = @Status, [AssignedMemberId] = @AssignedMemberId WHERE [QuestionId] = @QuestionId" 
+        UpdateCommand="UPDATE [Questions] SET [QuestionTitle] = @QuestionTitle, [Status] = @Status, [AssignedMemberId] = @AssignedMemberId, [ModifiedDate] = GETUTCDATE() WHERE [QuestionId] = @QuestionId"
         DeleteCommand="DELETE FROM [Questions] WHERE [QuestionId] = @QuestionId">
     </asp:SqlDataSource>
 
