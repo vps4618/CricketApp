@@ -8,7 +8,7 @@
         </div>
 
         <!-- ADD A QUESTION FOR MYSELF -->
-        <div class="col-md-4 mb-4">
+        <div class="col-lg-4 col-4 mb-4"> 
             <div class="card shadow-sm">
                 <div class="card-header bg-info text-dark">Add New Question For Me</div>
                 <div class="card-body">
@@ -25,7 +25,7 @@
         </div>
 
         <!-- MANAGE MY QUESTIONS -->
-        <div class="col-md-8 mb-4">
+        <div class="col-lg-8 col-8 mb-4"> 
             <div class="card shadow-sm">
                 <div class="card-header bg-secondary text-white">Update My Question Status</div>
                 <div class="card-body">
