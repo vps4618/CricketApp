@@ -1,0 +1,75 @@
+﻿Competition Tracker Documentation
+Toggle Theme
+
+1. System Overview
+A real-time, collaborative ASP.NET Web Forms application designed for team competitions.
+
+The system allows team members to track finished and ongoing questions to prevent duplicate effort. It features an auto-updating dashboard, lightweight session-based authentication, personalized task management, and responsive UI with dark/light mode toggling.
+
+Framework: ASP.NET Web Forms (C#)
+
+Database: SQL Server
+
+Frontend: HTML5, Bootstrap 5
+
+Real-time Sync: AJAX UpdatePanel & Timer
+
+2. Database Architecture
+The system relies on a relational SQL Server database with two primary tables: Members and Questions.
+
+Members Table
+-----------------
+
+Stores the team members who participate in the competition. Serves as the base for the login usernames.
+
+MemberId (INT, Primary Key, Identity)
+
+Name (NVARCHAR(100), Not Null)
+
+Questions Table
+------------------
+
+Stores the competition questions, their current status, and the assigned team member.
+
+QuestionId (INT, Primary Key, Identity)
+
+QuestionTitle (NVARCHAR(255), Unique, Not Null)
+
+Status (NVARCHAR(50) - Pending, Ongoing, Finished)
+
+AssignedMemberId (INT, Foreign Key references Members)
+
+3. Core Components & Pages
+Site.Master (Global Layout)
+The Master Page handles the responsive navigation bar and Bootstrap 5 imports. It also houses the <asp:ScriptManager> required for AJAX requests and a JavaScript function toggleTheme() that alters the data-bs-theme attribute on the root HTML element.
+
+Default.aspx (Auto-Updating Dashboard)
+Acts as the main hub. It uses nested <asp:Repeater> controls to display members and their associated questions.
+An <asp:UpdatePanel> and <asp:Timer> are used to silently poll the database every 5 seconds, refreshing the UI without reloading the page so all team members stay synchronized.
+
+Manage.aspx (Administration)
+Provides central administration logic. Users can add new team members or questions. Two <asp:GridView> elements, hooked up to <asp:SqlDataSource> controls, handle automatic Updating and Deleting of records.
+
+Login.aspx (Authentication)
+A lightweight login portal. It validates the typed username against the database and checks the entered password against the TeamPassword key stored in Web.config. Upon success, it stores the MemberId in a Session variable and redirects to MyTasks.
+
+MyTasks.aspx (Personal Workspace)
+Displays only the questions assigned to the logged-in user using a <asp:SessionParameter> in the data source. Allows users to claim new questions.
+Duplicate Prevention: Before inserting a newly claimed question, the code-behind executes a SELECT COUNT(1) SQL check to verify the question hasn't already been claimed by another teammate.
+
+4. Configuration & Security
+The application parameters and connection strings are managed securely within the Web.config file.
+
+<configuration>
+  <appSettings>
+    <add key="TeamPassword" value="YourSecureTeamPassword" />
+  </appSettings>
+  <connectionStrings>
+    <add name="DefaultConnection" connectionString="Data Source=YOUR_SERVER;Initial Catalog=CompTracker;Integrated Security=True;" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+</configuration>
+Session Security: Protected pages like MyTasks.aspx verify that Session["MemberId"] is not null during Page_Load. If null, the user is redirected back to the login page.
+
+SQL Injection Prevention: All database commands use parameterized queries (cmd.Parameters.AddWithValue()) rather than string concatenation.
+
+© 2026 Team Competition Tracker. Powered by ASP.NET Web Forms.

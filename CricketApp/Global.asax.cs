@@ -129,6 +129,28 @@ namespace CricketApp
                     INSERT INTO Teams (TeamName) VALUES ('Ingiriya Strikers');
                     INSERT INTO Teams (TeamName) VALUES ('Moratuwa Kings');
                 END
+                
+                -- Sql codes for competition tracker
+
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Members' AND xtype='U')
+                BEGIN
+                    CREATE TABLE Members (
+                       MemberId INT IDENTITY(1,1) PRIMARY KEY,
+                       Name NVARCHAR(100) NOT NULL
+                    );
+                END
+                
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Questions' AND xtype='U')
+                BEGIN
+                    CREATE TABLE Questions (
+                         QuestionId INT IDENTITY(1,1) PRIMARY KEY,
+                         QuestionTitle NVARCHAR(255) NOT NULL,
+                        Status NVARCHAR(50) DEFAULT 'Pending', -- Values: Pending, Ongoing, Finished
+                        AssignedMemberId INT NULL FOREIGN KEY REFERENCES Members(MemberId)
+                    );
+                END
+                
+
             ";
 
             try

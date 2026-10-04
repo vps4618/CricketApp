@@ -156,8 +156,9 @@ namespace CricketApp
         private void ProcessBall(int runsScored, int wicketsFallen, bool isLegalBall)
         {
             // Define the limits from the Python algorithm
-            int maxOvers = 5;
-            int maxWickets = 8;
+            // Dynamically fetch the limits from Web.config
+            int maxOvers = Convert.ToInt32(ConfigurationManager.AppSettings["MaxOvers"]);
+            int maxWickets = Convert.ToInt32(ConfigurationManager.AppSettings["MaxWickets"]);
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
@@ -601,8 +602,9 @@ VALUES (@MatchId, @Score, @Wickets, @Overs, @Balls, @Innings, @Target)";
                 return;
             }
 
-            int maxOvers = 5;
-            int maxWickets = 8;
+            // Dynamically fetch the limits from Web.config
+            int maxOvers = Convert.ToInt32(ConfigurationManager.AppSettings["MaxOvers"]);
+            int maxWickets = Convert.ToInt32(ConfigurationManager.AppSettings["MaxWickets"]);
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
