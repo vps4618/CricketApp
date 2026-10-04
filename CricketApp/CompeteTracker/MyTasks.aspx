@@ -60,7 +60,8 @@
     <!-- SqlDataSource filtered by Session["MemberId"] -->
     <asp:SqlDataSource ID="SqlDataSourceMyQuestions" runat="server" 
         ConnectionString="<%$ ConnectionStrings:CricketDb %>" 
-        SelectCommand="SELECT QuestionId, QuestionTitle, Status FROM [Questions] WHERE AssignedMemberId = @MemberId"
+        SelectCommand="SELECT QuestionId,QuestionTitle, Status FROM [Questions] WHERE AssignedMemberId = @MemberId ORDER BY ISNULL(ModifiedDate, CreatedDate) DESC"
+
         UpdateCommand="UPDATE [Questions] SET [Status] = @Status, [ModifiedDate] = GETUTCDATE() WHERE [QuestionId] = @QuestionId">
 
         <SelectParameters>

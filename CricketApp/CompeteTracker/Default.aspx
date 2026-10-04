@@ -13,7 +13,8 @@
                     <div class="row">
                         <asp:Repeater ID="rptMembers" runat="server" OnItemDataBound="rptMembers_ItemDataBound">
                             <ItemTemplate>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-lg-4 col-md-4 col-4 mb-2" style="min-width: 0;">
+
                                     <div class="card">
                                         <div class="card-header bg-primary text-white">
                                             <%# Eval("Name") %>
