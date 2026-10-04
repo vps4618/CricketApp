@@ -39,49 +39,66 @@ namespace CricketApp.CompeteTracker
                 {
                     con.Open();
 
-                    // 1. Check if the question exists and retrieve its assigned member
-                    string checkQuery = "SELECT AssignedMemberId FROM Questions WHERE QuestionTitle = @Title";
+                    // 1. Check if the question exists and retrieve BOTH assigned member and status
+                    string checkQuery = "SELECT AssignedMemberId, Status FROM Questions WHERE QuestionTitle = @Title";
+
+                    bool questionExists = false;
+                    bool isAvailableToClaim = false;
+
                     using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
                     {
                         checkCmd.Parameters.AddWithValue("@Title", questionTitle);
 
-                        // ExecuteScalar returns null if no record is found, or the value of the first column if found.
-                        object result = checkCmd.ExecuteScalar();
+                        // Use SqlDataReader to read multiple columns
+                        using (SqlDataReader reader = checkCmd.ExecuteReader())
+                        {
+                            if (reader.Read()) // The question title already exists in the database
+                            {
+                                questionExists = true;
 
-                        if (result != null) // The question title already exists in the database
-                        {
-                            if (result != DBNull.Value)
-                            {
-                                // Someone is already assigned to it
-                                lblAddMessage.Text = "Stop: This question has already been taken by someone!";
-                                lblAddMessage.CssClass = "text-danger"; // Bootstrap red text
-                                return; // Abort the rest of the method
-                            }
-                            else
-                            {
-                                // It exists, but no one is assigned. Claim it via UPDATE.
-                                string updateQuery = "UPDATE Questions SET AssignedMemberId = @MemberId, Status = 'Ongoing' WHERE QuestionTitle = @Title";
-                                using (SqlCommand updateCmd = new SqlCommand(updateQuery, con))
+                                object assignedId = reader["AssignedMemberId"];
+                                string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "";
+
+                                // If it IS assigned AND the status is NOT pending -> Block it
+                                if (assignedId != DBNull.Value && !status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    updateCmd.Parameters.AddWithValue("@Title", questionTitle);
-                                    updateCmd.Parameters.AddWithValue("@MemberId", Convert.ToInt32(Session["MemberId"]));
-                                    updateCmd.ExecuteNonQuery();
+                                    lblAddMessage.Text = "Stop: This question has already been taken and is in progress!";
+                                    lblAddMessage.CssClass = "text-danger"; // Bootstrap red text
+                                    return; // Abort the rest of the method
                                 }
-                                lblAddMessage.Text = "Existing question successfully claimed!";
+                                else
+                                {
+                                    // It is either Unassigned (NULL) OR Assigned but "Pending". Allow claim.
+                                    isAvailableToClaim = true;
+                                }
                             }
-                        }
-                        else
+                        } // The reader automatically closes here, allowing us to run the next SQL commands
+                    }
+
+                    // Execute the appropriate action based on the read results
+                    if (questionExists && isAvailableToClaim)
+                    {
+                        // Claim it via UPDATE, overwriting the previous assignee
+                        string updateQuery = "UPDATE Questions SET AssignedMemberId = @MemberId, Status = 'Ongoing' WHERE QuestionTitle = @Title";
+                        using (SqlCommand updateCmd = new SqlCommand(updateQuery, con))
                         {
-                            // 2. The question does not exist at all. Proceed with INSERT.
-                            string insertQuery = "INSERT INTO Questions (QuestionTitle, Status, AssignedMemberId) VALUES (@Title, 'Ongoing', @MemberId)";
-                            using (SqlCommand insertCmd = new SqlCommand(insertQuery, con))
-                            {
-                                insertCmd.Parameters.AddWithValue("@Title", questionTitle);
-                                insertCmd.Parameters.AddWithValue("@MemberId", Convert.ToInt32(Session["MemberId"]));
-                                insertCmd.ExecuteNonQuery();
-                            }
-                            lblAddMessage.Text = "New question added and successfully claimed!";
+                            updateCmd.Parameters.AddWithValue("@Title", questionTitle);
+                            updateCmd.Parameters.AddWithValue("@MemberId", Convert.ToInt32(Session["MemberId"]));
+                            updateCmd.ExecuteNonQuery();
                         }
+                        lblAddMessage.Text = "Existing question successfully claimed!";
+                    }
+                    else if (!questionExists)
+                    {
+                        // 2. The question does not exist at all. Proceed with INSERT.
+                        string insertQuery = "INSERT INTO Questions (QuestionTitle, Status, AssignedMemberId) VALUES (@Title, 'Ongoing', @MemberId)";
+                        using (SqlCommand insertCmd = new SqlCommand(insertQuery, con))
+                        {
+                            insertCmd.Parameters.AddWithValue("@Title", questionTitle);
+                            insertCmd.Parameters.AddWithValue("@MemberId", Convert.ToInt32(Session["MemberId"]));
+                            insertCmd.ExecuteNonQuery();
+                        }
+                        lblAddMessage.Text = "New question added and successfully claimed!";
                     }
                 }
 
@@ -93,6 +110,7 @@ namespace CricketApp.CompeteTracker
                 gridMyQuestions.DataBind();
             }
         }
+
         // Optional helper method to color-code statuses in the GridView (same as Default.aspx)
         protected string GetStatusColor(string status)
         {

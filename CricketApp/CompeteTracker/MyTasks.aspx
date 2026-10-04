@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/CompeteTracker/Site.Master" AutoEventWireup="true" CodeBehind="MyTasks.aspx.cs" Inherits="CricketApp.CompeteTracker.MyTasks" %>
+﻿<%@ Page Title="My Tasks" Language="C#" MasterPageFile="~/CompeteTracker/Site.Master" AutoEventWireup="true" CodeBehind="MyTasks.aspx.cs" Inherits="CricketApp.CompeteTracker.MyTasks" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="row">
