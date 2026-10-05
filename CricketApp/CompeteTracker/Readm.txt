@@ -1,4 +1,6 @@
-﻿# database clear karanna
-# mulin memebers name tika add karanna manage haraha.
+﻿mulinma competition eke prashna kochchara thiyenavada balanna. aduyi nam me app eka ona na.
+
+# database clear karanna
+# mulin memebers , questions name tika add karanna manage haraha. 
 # ekek kenata e name eken log venna kiyanna. password eka yavanna.
 # katahari prashnayak karanna bari vunoth , eyalata e prashneta 'pending' danna kiyanna. ethakota vena kenekta eka thoraganna puluwan. ekath kiyanna.

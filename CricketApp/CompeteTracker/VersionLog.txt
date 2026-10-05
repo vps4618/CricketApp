@@ -8,3 +8,5 @@
 ------------
 # clear tables option added.
 # ads removed.
+# overflowing fixed.
+# combo box added instead of textbox in mytasks.

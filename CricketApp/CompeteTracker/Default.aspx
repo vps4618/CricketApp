@@ -4,12 +4,12 @@
     <div class="row">
         <div class="col-12">
             <h2>Question Status</h2>
-            
+
             <asp:UpdatePanel ID="DashboardUpdatePanel" runat="server">
                 <ContentTemplate>
                     <!-- Triggers the UpdatePanel to refresh every 5 seconds (5000 ms) -->
                     <asp:Timer ID="DashboardTimer" runat="server" Interval="5000" OnTick="DashboardTimer_Tick"></asp:Timer>
-                    
+
                     <div class="row">
                         <asp:Repeater ID="rptMembers" runat="server" OnItemDataBound="rptMembers_ItemDataBound">
                             <ItemTemplate>
@@ -23,9 +23,11 @@
                                             <!-- Nested repeater for this member's questions -->
                                             <asp:Repeater ID="rptQuestions" runat="server">
                                                 <ItemTemplate>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <%# Eval("QuestionTitle") %>
-                                                        <span class="badge bg-<%# GetStatusColor(Eval("Status").ToString()) %> rounded-pill">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                                                        <span style="word-break: break-word; flex: 1; min-width: 0;">
+                                                            <%# Eval("QuestionTitle") %>
+                                                        </span>
+                                                        <span class="badge bg-<%# GetStatusColor(Eval("Status").ToString()) %> rounded-pill flex-shrink-0">
                                                             <%# Eval("Status") %>
                                                         </span>
                                                     </li>
@@ -37,10 +39,10 @@
                             </ItemTemplate>
                         </asp:Repeater>
                     </div>
-                    
+
                 </ContentTemplate>
             </asp:UpdatePanel>
-            
+
         </div>
     </div>
 </asp:Content>
