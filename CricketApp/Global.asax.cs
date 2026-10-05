@@ -148,7 +148,7 @@ namespace CricketApp
                         Status NVARCHAR(50) DEFAULT 'Pending', -- Values: Pending, Ongoing, Finished
                         AssignedMemberId INT NULL FOREIGN KEY REFERENCES Members(MemberId),
                         CreatedDate DATETIME DEFAULT GETUTCDATE(),
-                        ModifiedDate DATETIME NULL;
+                        ModifiedDate DATETIME NULL
                     );
                 END
                 

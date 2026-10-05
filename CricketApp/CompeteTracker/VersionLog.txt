@@ -3,3 +3,8 @@
 # reorder with descending time in dashboard
 # question which assigned but pending , can be taken by other user
 # in main dashboard , member views will be always horizontal
+
+2026/10/05
+------------
+# clear tables option added.
+# ads removed.
