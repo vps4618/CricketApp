@@ -112,6 +112,7 @@
     <Content Include="CompeteTracker\Manage.aspx" />
     <Content Include="CompeteTracker\MyTasks.aspx" />
     <Content Include="CompeteTracker\Readm.txt" />
+    <Content Include="CompeteTracker\ResetDatabase.aspx" />
     <Content Include="CompeteTracker\VersionLog.txt" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -206,6 +207,13 @@
     </Compile>
     <Compile Include="CompeteTracker\MyTasks.aspx.designer.cs">
       <DependentUpon>MyTasks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CompeteTracker\ResetDatabase.aspx.cs">
+      <DependentUpon>ResetDatabase.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CompeteTracker\ResetDatabase.aspx.designer.cs">
+      <DependentUpon>ResetDatabase.aspx</DependentUpon>
     </Compile>
     <Compile Include="CompeteTracker\Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
